@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  social_media_app_users:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_DATABASE: social_media_app_users
+    ports:
+      - "3306:3306"
+    networks:
+      - spring_network
+    volumes:
+      - social_media_app_users:/var/lib/mysql
+
+
+  social_media_app_posts:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_DATABASE: social_media_app_posts
+    ports:
+      - "3307:3307"
+    networks:
+      - spring_network
+    volumes:
+      - social_media_app_posts:/var/lib/mysql
+
+
+  social_media_app_comments:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_DATABASE: social_media_app_comments
+    ports:
+      - "3308:3308"
+    networks:
+      - spring_network
+    volumes:
+      - social_media_app_comments:/var/lib/mysql
+
+
+  user_service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - spring_network
+    depends_on:
+      - social_media_app_users
+
+
+  post_service:
+    build:
+      context: ./PostService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - social_media_app_posts
+    networks:
+      - spring_network
+
+
+  comment_service:
+    build:
+      context: ./CommentService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      - social_media_app_comments
+    networks:
+      - spring_network
+
+
+  api_gateway:
+    build:
+      context: ./ApiGatway
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8084:8084"
+    networks:
+      - spring_network
+
+
+  eureka_service:
+    build:
+      context: ./EurekaService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8761:8761"
+
+
+networks:
+  spring_network:
+
+volumes:
+  social_media_app_users:
+  social_media_app_posts:
+  social_media_app_comments:
